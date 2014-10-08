@@ -4,12 +4,16 @@
 		<link rel="stylesheet" href="default.css"/>
 		<script src="leaf.js"></script>
 		<script src="render.js"></script>
+		<script src="room.js"></script>
+		<script src="random.js"></script>
 	</head>
 	<body>
 		<div class="info">
-			<button onclick="split()">Split!</button>
-			<button onclick="refresh()">Refresh!</button>
-			<div id="iter">Iteration : </div>
+			<button id="split" onclick="split()">Split!</button>
+			<button id="createRoom" onclick="createRoom()">Create Room!</button>
+			<button id="refresh" onclick="refresh()">Refresh!</button>
+			<div id="iter">Iteration : 0</div>
+			<div id="roomCount">RoomCount : 0</div>
 		</div>
 		<canvas class="map" id="canvas" width="1000" height="600">
 		</canvas>
@@ -17,44 +21,75 @@
 			// Main Code
 			var canvas = document.getElementById('canvas');
 			var render = new Render(canvas.getContext('2d'));
-			var iterText = document.getElementById('iter');
+			var random = new Random();
 			var rootLeaf;
-			var leafs;
+			var leafs = new Array();
 			var iter = 0;
-			var curLeaf = 0;
-			var lastChildLeaf = 0;
-			
+
+			// Info Component
+			var iterText = document.getElementById('iter');
+			var roomCountText = document.getElementById('roomCount');
+			var splitButton = document.getElementById('split');
+			var createRoomButton = document.getElementById('createRoom');
+			var refreshButton = document.getElementById('refresh');
+
 			refresh();
-			
+
 			// Function
+			// Create halls for each room
+			function createHall() {
+
+			}
+			// Create room for each last child
+			function createRoom() {
+				rooms = new Array();
+				for (var i = 0; i < leafs.length; i++) {
+					if (leafs[i].leftNode == null && leafs[i].rightNode == null) {
+						leafs[i].createRoom(0.5, 0.8, random);
+					}
+				}
+				drawAll();
+				splitButton.disabled = true;
+			}
 			// Refresh the BSP
 			function refresh() {
-				rootLeaf = new Leaf(0, 0, 1000, 600, render.getRandomColor());
+				rootLeaf = new Leaf(0, 0, 1000, 600, render.getRandomColor(random));
 				leafs = new Array();
 				leafs.push(rootLeaf);
+				iter = 0;
 				drawAll();
+				splitButton.disabled = false;
+				createRoomButton.disabled = true;
 			}
 			// Split current last child
 			function split() {
 				var leafsLength = leafs.length;
-				lastChildLeaf = curLeaf;
-				for(var j = curLeaf; j < leafsLength; j++) {
-					if(leafs[j].split(render)) {
+				for (var j = 0; j < leafsLength; j++) {
+					if (leafs[j].leftNode == null && leafs[j].rightNode == null && leafs[j].split(render, random)) {
 						leafs.push(leafs[j].leftNode);
 						leafs.push(leafs[j].rightNode);
 					}
 				}
 				iter++;
-				curLeaf = leafsLength;
+				createRoomButton.disabled = false;
 				drawAll();
 			}
 			// Draw all child
 			function drawAll() {
+				var roomCount = 0;
 				render.clear(canvas);
-				for(var i = 0; i < leafs.length; i++) {
-					leafs[i].draw(render);
+				// Draw leafs
+				for (var i = 0; i < leafs.length; i++) {
+					if (leafs[i].leftNode == null && leafs[i].rightNode == null) {
+						leafs[i].draw(render);
+						if (leafs[i].room != null) {
+							leafs[i].room.draw(render);
+							roomCount++;
+						}
+					}
 				}
 				iterText.innerHTML = "Iteration : " + iter;
+				roomCountText.innerHTML = "Room Count : " + roomCount;
 			}
 		</script>
 	</body>
