@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" href="default.css"/>
+		<script src="leaf.js"></script>
+		<script src="render.js"></script>
+	</head>
+	<body>
+		<div class="info">
+			<button onclick="split()">Split!</button>
+			<button onclick="refresh()">Refresh!</button>
+			<div id="iter">Iteration : </div>
+		</div>
+		<canvas class="map" id="canvas" width="1000" height="600">
+		</canvas>
+		<script>
+			// Main Code
+			var canvas = document.getElementById('canvas');
+			var render = new Render(canvas.getContext('2d'));
+			var iterText = document.getElementById('iter');
+			var rootLeaf;
+			var leafs;
+			var iter = 0;
+			var curLeaf = 0;
+			var lastChildLeaf = 0;
+			
+			refresh();
+			
+			// Function
+			// Refresh the BSP
+			function refresh() {
+				rootLeaf = new Leaf(0, 0, 1000, 600, render.getRandomColor());
+				leafs = new Array();
+				leafs.push(rootLeaf);
+				drawAll();
+			}
+			// Split current last child
+			function split() {
+				var leafsLength = leafs.length;
+				lastChildLeaf = curLeaf;
+				for(var j = curLeaf; j < leafsLength; j++) {
+					if(leafs[j].split(render)) {
+						leafs.push(leafs[j].leftNode);
+						leafs.push(leafs[j].rightNode);
+					}
+				}
+				iter++;
+				curLeaf = leafsLength;
+				drawAll();
+			}
+			// Draw all child
+			function drawAll() {
+				render.clear(canvas);
+				for(var i = 0; i < leafs.length; i++) {
+					leafs[i].draw(render);
+				}
+				iterText.innerHTML = "Iteration : " + iter;
+			}
+		</script>
+	</body>
+</html>
