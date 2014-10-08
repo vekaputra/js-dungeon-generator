@@ -6,6 +6,9 @@
 		<script src="render.js"></script>
 		<script src="room.js"></script>
 		<script src="random.js"></script>
+		<script src="hall.js"></script>
+		<script src="rectangle.js"></script>
+		<script src="point.js"></script>
 	</head>
 	<body>
 		<div class="info">
@@ -24,7 +27,10 @@
 			var random = new Random();
 			var rootLeaf;
 			var leafs = new Array();
+			var halls = new Array();
+			var rooms = new Array();
 			var iter = 0;
+			var hallSize = 50;
 
 			// Info Component
 			var iterText = document.getElementById('iter');
@@ -36,25 +42,122 @@
 			refresh();
 
 			// Function
-			// Create halls for each room
+			// Create halls for all room
 			function createHall() {
+				halls = new Array();
+				for (var i = 0; i < rooms.length; i++) {
+					var nearestRoom = getNearestRoom(rooms[i]);
+					if (rooms[i].isNodeConnected(nearestRoom)) {
+						nearestRoom = getNearestRoom(rooms[i], nearestRoom);
+					}
+					createHallForRooms(rooms[i], nearestRoom);
+				}
+			}
+			// Create hall between 2 rooms
+			function createHallForRooms(room1, room2) {
+				if (isLinkedHorizontal(room1, room2)) {
+					createHorizontalHall(room1, room2);
+				} else if (isLinkedVertical(room1, room2)) {
+					createVerticalHall(room1, room2);
+				} else {
+					createLHall(room1, room2);
+				}
+			}
+			// Check if linked horizontally
+			function isLinkedHorizontal(room1, room2) {
+				if (room1.rect.y > room2.rect.y && room1.rect.y < room2.rect.y + room2.rect.height ||
+				room1.rect.y + room1.rect.height > room2.rect.y && room1.rect.y + room1.rect.height < room2.rect.y + room2.rect.height) {
+					return true;
+				}
+				return false;
+			}
+			// Check if linked vertically
+			function isLinkedVertical(room1, room2) {
+				if (room1.rect.x > room2.rect.x && room1.rect.x < room2.rect.x + room2.rect.width ||
+					room1.rect.x + room1.rect.width > room2.rect.x && room1.rect.x + room1.rect.width < room2.rect.x + room2.rect.width) {
+						return true;
+				}
+				return false;
+			}
+			// Create vertical hall
+			function createVerticalHall(room1, room2) {
+				var x = 0;
+				var point1, point2;
+				if (room1.rect.x > room2.rect.x && room1.rect.x < room2.rect.x + room2.rect.width &&
+				room1.rect.x + room1.rect.width > room2.rect.x + room2.rect.width) {
+					x = random.randomRange(room1.rect.x, room2.rect.x + room2.rect.width - hallSize);
+				} else {
+					x = random.randomRange(room1.rect.x, room1.rect.x + room1.rect.width - hallSize);
+				}
+				if (room1.rect.y < room2.rect.y) {
+					point1 = new Point(x, room1.rect.y + room1.rect.height);
+					point2 = new Point(x + hallSize, room2.rect.y);
+				} else {
+					point1 = new Point(x, room1.rect.y);
+					point2 = new Point(x + hallSize, room2.rect.y + room2.rect.height);
+				}
+				halls.push(new Hall(point1, point2));
+				room1.addNode(room2);
+				room2.addNode(room1);
+			}
+			// Create horizontal hall
+			function createHorizontalHall(room1, room2) {
+				var y = 0;
+				var point1, point2;
+				if (room1.rect.y > room2.rect.y && room1.rect.y < room2.rect.y + room2.rect.height &&
+				room1.rect.y + room1.rect.height > room2.rect.y + room2.rect.height) {
+					y = random.randomRange(room1.rect.y, room2.rect.y + room2.rect.height - hallSize);
+				} else {
+					y = random.randomRange(room1.rect.y, room1.rect.y + room1.rect.height - hallSize);
+				}
+				if (room1.rect.x < room2.rect.x) {
+					point1 = new Point(room1.rect.x + room1.rect.width, y);
+					point2 = new Point(room2.rect.x, y + hallSize);
+				} else {
+					point1 = new Point(room1.rect.x, y);
+					point2 = new Point(room2.rect.x + room2.rect.width, y + hallSize);
+				}
+				halls.push(new Hall(point1, point2));
+				room1.addNode(room2);
+				room2.addNode(room1);
+			}
+			// Create L hall
+			function createLHall(room1, room2) {
 
+			}
+			// Get nearest room
+			function getNearestRoom(room, forbiddenRoom = null) {
+				var nearestRoom = null;
+				var nearestDistance = 9999;
+				for (var i = 0; i < rooms.length; i++) {
+					var distance = room.getDistance(rooms[i]);
+					if (nearestDistance > distance && distance > 0) {
+						if (forbiddenRoom == null) {
+							nearestDistance = distance;
+							nearestRoom = rooms[i];
+						}
+					}
+				}
+				return nearestRoom;
 			}
 			// Create room for each last child
 			function createRoom() {
 				rooms = new Array();
 				for (var i = 0; i < leafs.length; i++) {
 					if (leafs[i].leftNode == null && leafs[i].rightNode == null) {
-						leafs[i].createRoom(0.5, 0.8, random);
+						rooms.push(leafs[i].createRoom(0.5, 0.8, random));
 					}
 				}
+				createHall();
 				drawAll();
 				splitButton.disabled = true;
 			}
 			// Refresh the BSP
 			function refresh() {
-				rootLeaf = new Leaf(0, 0, 1000, 600, render.getRandomColor(random));
+				rootLeaf = new Leaf(new Rectangle(0, 0, 1000, 600), render.getRandomColor(random));
 				leafs = new Array();
+				halls = new Array();
+				rooms = new Array();
 				leafs.push(rootLeaf);
 				iter = 0;
 				drawAll();
@@ -87,6 +190,9 @@
 							roomCount++;
 						}
 					}
+				}
+				for (var i = 0; i < halls.length; i++) {
+					halls[i].draw(render);
 				}
 				iterText.innerHTML = "Iteration : " + iter;
 				roomCountText.innerHTML = "Room Count : " + roomCount;
