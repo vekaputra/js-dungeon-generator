@@ -19,7 +19,7 @@ html {
 	position:absolute;
 	top:5px;
 	left:5px;
-	width:150px;
+	width:145px;
 	height:220px;
 	background-color:#555;
 	border:solid 1px #fff;
@@ -27,5 +27,5 @@ html {
 }
 .map {
 	border:solid 1px #fff;
-	margin:5px 160px 0 !important;
+	margin:5px 155px 0 !important;
 }
