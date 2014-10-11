@@ -21,7 +21,7 @@ function Leaf(rect, color, minSize) {
 			// if rightnode is not null, call getroom on rightnode and store it in rightroom
 			if (this.rightNode != null) {
 				rightRoom = this.rightNode.getRoom();
-			}
+			}			
 			// determine which room will be returned
 			if (leftRoom == null && rightRoom == null) {
 				// if leftroom and rightroom is null return room as null
@@ -41,10 +41,51 @@ function Leaf(rect, color, minSize) {
 			}
 		}
 	};
+	// create hall between 2 rooms
 	this.createHall = function(leftRoom, rightRoom) {
-		halls = new Array();
+		this.halls = new Array();
 
-
+		var point1 = new Point(
+			random.randomRange(leftRoom.rect.x + 1, leftRoom.rect.x + leftRoom.rect.width - 3), 
+			random.randomRange(leftRoom.rect.y + 1, leftRoom.rect.y + leftRoom.rect.height - 3)
+		);
+		var point2 = new Point(
+			random.randomRange(rightRoom.rect.x + 1, rightRoom.rect.x + rightRoom.rect.width - 3), 
+			random.randomRange(rightRoom.rect.y + 1, rightRoom.rect.y + rightRoom.rect.height - 3)
+		);
+		
+		var minX = Math.min(point1.x, point2.x);
+		var minY = Math.min(point1.y, point2.y);
+		var maxX = Math.max(point1.x, point2.x);
+		var maxY = Math.max(point1.y, point2.y);
+		var w = point1.x - point2.x;
+		var h = point1.y - point2.y;
+		var mW = Math.abs(w);
+		var mH = Math.abs(h);
+		
+		if (w == 0) {
+			this.halls.push(new Room(new Rectangle(minX, minY, 1, mH)));
+		} else if (h == 0) {
+			this.halls.push(new Room(new Rectangle(minX, minY, mW, 1)));
+		} else {
+			if ((w > 0 && h > 0) || (w < 0 && h < 0)) {
+				if (random.random(2) > 1) {
+					this.halls.push(new Room(new Rectangle(minX, minY, mW, 1)));
+					this.halls.push(new Room(new Rectangle(maxX, minY, 1, mH)));
+				} else {
+					this.halls.push(new Room(new Rectangle(minX, minY, 1, mH)));
+					this.halls.push(new Room(new Rectangle(minX, maxY, mW, 1)));
+				}
+			} else {
+				if (random.random(2) > 1) {
+					this.halls.push(new Room(new Rectangle(minX, maxY, mW, 1)));
+					this.halls.push(new Room(new Rectangle(maxX, minY, 1, mH)));
+				} else {
+					this.halls.push(new Room(new Rectangle(minX, minY, 1, mH)));
+					this.halls.push(new Room(new Rectangle(minX, minY, mW, 1)));
+				}
+			}
+		}
 	};
 	// create room in lowest child
 	this.createRoom = function() {
@@ -57,6 +98,8 @@ function Leaf(rect, color, minSize) {
 			// call createroom function in rightnode
 			if (this.rightNode != null)
 				this.rightNode.createRoom();
+			// call create hall
+			this.createHall(this.leftNode.getRoom(), this.rightNode.getRoom());
 		} else {
 			var roomSize, roomPos;
 			// randomize width and height then store it as roomSize

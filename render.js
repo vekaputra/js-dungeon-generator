@@ -1,8 +1,11 @@
 function Render(context) {
 	this.ctx = context;
+	// clear the canvas
 	this.clear = function(canvas) {
+		// clear canvas from 0,0 with the size of canvas
 		this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 	};
+	// draw leaf 10x10 pixel each
 	this.drawLeaf = function(rect, color) {
 		this.ctx.fillStyle = color;
 		this.ctx.strokeStyle = "#000000";
@@ -13,18 +16,12 @@ function Render(context) {
 			}
 		}
 	};
+	// draw room and hall
 	this.drawRoom = function(rect) {
 		this.ctx.fillStyle = "#ffffff";
-		//this.ctx.strokeStyle = "#000000";
 		this.ctx.fillRect(rect.x * 10, rect.y * 10, rect.width * 10, rect.height * 10);
-		//this.ctx.strokeRect(rect.x * 10, rect.y * 10, rect.width * 10, rect.height * 10);
 	};
-	this.drawHall = function(point1, point2) {
-		this.ctx.fillStyle = "#000000";
-		this.ctx.fillRect(point1.x, point2.y, point2.x - point1.x, point2.y - point1.y);
-		this.ctx.strokeStyle = "#ffffff";
-		this.ctx.strokeRect(point1.x, point2.y, point2.x - point1.x, point2.y - point1.y);
-	};
+	// randomized color to format 'rgb(r,g,b)'
 	this.getRandomColor = function() {
 		var r = random.random(256, true);
 		var g = random.random(256, true);

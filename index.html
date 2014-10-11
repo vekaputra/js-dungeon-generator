@@ -6,7 +6,6 @@
 		<script src="render.js"></script>
 		<script src="room.js"></script>
 		<script src="random.js"></script>
-		<script src="hall.js"></script>
 		<script src="rectangle.js"></script>
 		<script src="point.js"></script>
 	</head>
@@ -15,7 +14,8 @@
 			<button onclick="split()">Split!</button>
 			<button onclick="refresh()">Refresh!</button>
 			<div id="iter">Iteration : 0</div>
-			<div id="roomCount">RoomCount : 0</div>
+			<div id="roomCount">Room Count : 0</div>
+			<div id="hallCount">Hall Count : 0</div>
 		</div>
 		<canvas class="map" id="canvas" width="600" height="600">
 		</canvas>
@@ -28,11 +28,12 @@
 			var leafs = new Array();
 			var iter = 0;
 			var maxSize = 20;
-			var minSize = 8;
+			var minSize = 10;
 
 			// Info Component
 			var iterText = document.getElementById('iter');
 			var roomCountText = document.getElementById('roomCount');
+			var hallCountText = document.getElementById('hallCount');
 
 			refresh();
 
@@ -73,18 +74,33 @@
 			// Draw all child
 			function drawAll() {
 				var roomCount = 0;
+				var hallCount = 0;
 				render.clear(canvas);
+				// draw leaf & room
 				for (var i = 0; i < leafs.length; i++) {
 					if (leafs[i].leftNode == null && leafs[i].rightNode == null) {
+						// draw leaf
 						leafs[i].draw();
 						if (leafs[i].room != null) {
+							// draw room
 							leafs[i].room.draw();
 							roomCount++;
 						}
 					}
 				}
+				// draw hall
+				for (var i = 0; i < leafs.length; i++) {
+					var hallLength = leafs[i].halls.length;
+					if (hallLength > 0) {
+						for (var j = 0; j < hallLength; j++) {
+							leafs[i].halls[j].draw();
+							hallCount++;
+						}
+					}
+				}
 				iterText.innerHTML = "Iteration : " + iter;
 				roomCountText.innerHTML = "Room Count : " + roomCount;
+				hallCountText.innerHTML = "Hall Count : " + hallCount;
 			}
 		</script>
 	</body>
