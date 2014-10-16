@@ -24,7 +24,8 @@ function Room() {
 		if (x > this.x && x < this.x + this.width && y > this.y && y < this.y + this.height) return true;
 		return false;
 	};
-	this.draw = function() {
-		render.draw(this.x, this.y, this.width, this.height);
+	this.draw = function(minSize) {
+		if (this.width >= minSize && this.height >= minSize)
+			render.draw(this.x, this.y, this.width, this.height);
 	};
 }
