@@ -10,8 +10,6 @@ function Room() {
 			this.x = random.randomRange(0, canvasWidth - this.width);
 			this.y = random.randomRange(0, canvasHeight - this.height);
 		} while(this.isCollided());
-		if (this.width < minSize || this.height < minSize)
-			console.log(this.width + " " + this.height);
 	};
 	this.isCollided = function() {
 		for (var i = 0; i < rooms.length; i++) {
@@ -25,8 +23,6 @@ function Room() {
 	this.isInside = function(x, y) {
 		if (x > this.x && x < this.x + this.width && y > this.y && y < this.y + this.height) return true;
 		return false;
-	};
-	this.spread = function() {
 	};
 	this.draw = function() {
 		render.draw(this.x, this.y, this.width, this.height);
