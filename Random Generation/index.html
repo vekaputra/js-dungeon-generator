@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" href="default.css"/>
+		<script src="render.js"></script>
+		<script src="random.js"></script>
+		<script src="room.js"></script>
+	</head>
+	<body>
+		<div class="info">
+			<button onclick="generate()">Generate!</button>
+			<div>
+				Width :
+				<input type="text" id="width" value="40" />
+			</div>
+			<div>
+				Height :
+				<input type="text" id="height" value="40" />
+			</div>
+			<div>
+				Max Room Size :
+				<input type="text" id="maxroomsize" value="10" />
+			</div>
+			<div>
+				Min Room Size :
+				<input type="text" id="minroomsize" value="6" />
+			</div>
+			<div>
+				Min Size :
+				<input type="text" id="minsize" value="2" />
+			</div>
+			<div>
+				Room Count :
+				<input type="text" id="roomcount" value="40" />
+			</div>
+		</div>
+		<canvas class="map" id="canvas">
+		</canvas>
+		<script>
+			var blockSize = 15;
+		
+			var canvas = document.getElementById('canvas');
+			var render = new Render(canvas.getContext('2d'), blockSize);
+			var random = new Random();
+			var rooms = new Array();
+			
+			var width = 40;
+			var height = 40;
+			var maxRoomSize = 10;
+			var minRoomSize = 6;
+			var minRandomedSize = 2;
+			var roomCount = 40;
+			
+			function generate() {
+				rooms = new Array();
+				
+				getParameter();
+			
+				canvas.width = width * blockSize;
+				canvas.height = height * blockSize;
+				
+				for(var i = 0; i < roomCount; i++) {
+					var room = new Room();
+					var seed = random.random(100);
+					if (seed < 30) {
+						room.create(minRoomSize, maxRoomSize, width, height);
+					} else {
+						room.create(minRandomedSize, minRoomSize, width, height);
+					}
+					rooms.push(room);
+				}
+				draw();
+			}
+			
+			function getParameter() {
+				width = parseInt(document.getElementById('width').value);
+				height = parseInt(document.getElementById('height').value);
+				maxRoomSize = parseInt(document.getElementById('maxroomsize').value);
+				minRoomSize = parseInt(document.getElementById('minroomsize').value);
+				minRandomedSize = parseInt(document.getElementById('minsize').value);
+				roomCount = parseInt(document.getElementById('roomcount').value);
+			}
+			
+			function draw() {
+				render.clear(canvas);
+				render.drawCanvas(canvas);
+				for(var i = 0; i < rooms.length; i++) {
+					rooms[i].draw();
+				}
+			}
+		</script>
+	</body>
+</html>

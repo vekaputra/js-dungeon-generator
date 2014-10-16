@@ -1,0 +1,34 @@
+* {
+	margin:0;
+	padding:0;
+}
+div {
+	color:#ffffff;
+	margin:5px 5px;
+	width:190px;
+}
+html {
+	background-color:#333;
+}
+.info button {
+	margin:5px 5px 0;
+	padding:2px;
+	width:190px;
+}
+.info input {
+	width:50px;
+	float:right;
+}
+.info {
+	position:absolute;
+	top:5px;
+	left:5px;
+	width:200px;
+	height:220px;
+	background-color:#555;
+	border:solid 1px #fff;
+	margin:0;
+}
+.map {
+	margin:5px 210px 0 !important;
+}
