@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" href="default.css"/>
+		<script src="render.js"></script>
+		<script src="random.js"></script>
+		<script src="room.js"></script>
+	</head>
+	<body>
+		<div class="info">
+			<button onclick="generate()">Generate!</button>
+			<div>
+				Width :
+				<input type="text" id="width" value="40" />
+			</div>
+			<div>
+				Height :
+				<input type="text" id="height" value="40" />
+			</div>
+			<div>
+				Max Size :
+				<input type="text" id="maxsize" value="10" />
+			</div>
+			<div>
+				Min Size :
+				<input type="text" id="minsize" value="4" />
+			</div>
+			<div>
+				Max Room Loop :
+				<input type="text" id="maxloop" value="5" />
+			</div>
+		</div>
+		<canvas class="map" id="canvas">
+		</canvas>
+		<script>
+			var blockSize = 15;
+		
+			var canvas = document.getElementById('canvas');
+			var render = new Render(canvas.getContext('2d'), blockSize);
+			var random = new Random();
+			var rooms = new Array();
+			
+			var width = 40;
+			var height = 40;
+			var maxSize = 10;
+			var minSize = 4;
+			var maxLoop = 5;
+			
+			function generate() {
+				rooms = new Array();
+				
+				getParameter();
+			
+				canvas.width = width * blockSize;
+				canvas.height = height * blockSize;
+				
+				
+				draw();
+			}
+			
+			function getParameter() {
+				width = parseInt(document.getElementById('width').value);
+				height = parseInt(document.getElementById('height').value);
+				maxSize = parseInt(document.getElementById('maxsize').value);
+				minSize = parseInt(document.getElementById('minsize').value);
+				maxLoop = parseInt(document.getElementById('maxloop').value);
+			}
+			
+			function draw() {
+				render.clear(canvas);
+				render.drawCanvas(canvas);
+				for(var i = 0; i < rooms.length; i++) {
+					rooms[i].draw(minRoomSize);
+				}
+			}
+		</script>
+	</body>
+</html>
