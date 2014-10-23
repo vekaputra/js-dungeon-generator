@@ -1,6 +1,6 @@
 function Random() {
     // random value from min to max
-    this.randomRange = function(min, max, flag = true) {
+    this.range = function(min, max, flag = true) {
         if (flag) {
             // if flag is true, returned floored value from randomized value with max and min parameter
 			var rres = this.random(max - min);

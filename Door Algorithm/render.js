@@ -10,12 +10,28 @@ function Render(context, size) {
 		this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 		this.ctx.strokeRect(0, 0, canvas.width, canvas.height);
 	};
-	this.draw = function(x, y, width, height) {
-		this.ctx.fillStyle = "#999999";
-		this.ctx.fillRect(x * blockSize, y * blockSize, width * blockSize, height * blockSize);
-		
-		this.ctx.fillStyle = "#ffffff";
-		this.ctx.fillRect((x + 1) * blockSize, (y + 1) * blockSize, (width - 2) * blockSize, (height - 2) * blockSize);
+	this.draw = function(arr, width, height) {
+		for (var i = 0; i < height; i++)
+		{
+			for (var j = 0; j < width; j++)
+			{
+				if (arr[i][j] >= 0 && arr[i][j] <= 4)
+				{
+					this.ctx.fillStyle = "#ffff00";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
+				else if (arr[i][j] == 5)
+				{
+					this.ctx.fillStyle = "#ffffff";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
+				else if (arr[i][j] == 6)
+				{
+					this.ctx.fillStyle = "#999999";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
+			}
+		}
 	};
 	this.getRandomColor = function() {
 		var r = random.random(256, true);

@@ -4,7 +4,6 @@
 		<link rel="stylesheet" href="default.css"/>
 		<script src="render.js"></script>
 		<script src="random.js"></script>
-		<script src="room.js"></script>
 	</head>
 	<body>
 		<div class="info">
@@ -29,16 +28,21 @@
 				Max Room Loop :
 				<input type="text" id="maxloop" value="5" />
 			</div>
+			<div>
+				Generate Loop :
+				<input type="text" id="loop" value="10" />
+			</div>
 		</div>
 		<canvas class="map" id="canvas">
 		</canvas>
 		<script>
+			// 0 = Top Door, 1 = Right Door, 2 = Bottom Door, 3 = Left Door
+			// 4 = Door, 5 = Floor, 6 = Wall, 
 			var blockSize = 15;
 		
 			var canvas = document.getElementById('canvas');
 			var render = new Render(canvas.getContext('2d'), blockSize);
 			var random = new Random();
-			var rooms = new Array();
 			
 			var width = 40;
 			var height = 40;
@@ -46,32 +50,157 @@
 			var minSize = 4;
 			var maxLoop = 5;
 			
-			function generate() {
-				rooms = new Array();
-				
-				getParameter();
+			var dungeon = [];
 			
+			// Initialize dungeon array
+			function initialize() {
+				// Create new dungeon array with the size of width * height and all filled equal to -1
+				dungeon = [];
+				for(var i = 0; i < height; i++)
+				{
+					var temp = [];
+					for(var j = 0; j < width; j++)
+					{
+						temp.push(-1);
+					}
+					dungeon.push(temp);
+				}
+			}
+			
+			// Generate the dungeon
+			function generate() {
+				// Initialize dungeon array and get all parameter from user input
+				initialize();
+				getParameter();
+				// Set canvas size base on width and height multiplied by blockSize
 				canvas.width = width * blockSize;
 				canvas.height = height * blockSize;
-				
-				
+				// Create the initial room
+				createInitialRoom();
+				// Create the other room by spreading from initial room (maximum loop from user input)
+				for (var i = 0; i < loop; i++)
+				{
+					
+				}
+				// Draw the dungeon
 				draw();
 			}
 			
+			// Create room based on door position and direction
+			function createRoom(x, y, dir) {
+				var rect, doors;
+				var rLoop = 0;
+				// Create / recreate rectangle until the rectangle isn't collided with any other rectangle (maximum 5 loops)
+				do {
+					rect = createRect(dir);
+				} while(rLoop < 5 && !isAreaClear(rect));
+				// If area is clear, create doors and set value at initial door as 4 (Normal Door)
+				// Else set value at initial door as 6 (Wall)
+				if (isAreaClear(rect)) {
+					// Create doors for current room
+					doors = createDoors(rect, dir);
+					// Set the door from which the room created as 4 (Normal Room)
+					dungeon[y][x] = 4;
+				} else {
+					// Set the door from which the room created as 6 (Wall)
+					dungeon[y][x] = 6;
+				}
+			}
+			
+			// Create initial room
+			function createInitialRoom() {
+				// Get room position and size
+				var rect = createRect();
+				// Random door position
+				var doors = createDoors(rect);
+				// Commit room to array
+				commitRoom(rect, doors);
+			}
+			
+			// Draw the dungeon
+			function draw() {
+				// Clear canvas, draw canvas background, and draw dungeon based on 'dungeon' array
+				render.clear(canvas);
+				render.drawCanvas(canvas);
+				render.draw(dungeon, width, height);
+			}
+			
+			// Get all parameter from user input
 			function getParameter() {
 				width = parseInt(document.getElementById('width').value);
 				height = parseInt(document.getElementById('height').value);
 				maxSize = parseInt(document.getElementById('maxsize').value);
 				minSize = parseInt(document.getElementById('minsize').value);
 				maxLoop = parseInt(document.getElementById('maxloop').value);
+				loop = parseInt(document.getElementById('loop').value);
 			}
 			
-			function draw() {
-				render.clear(canvas);
-				render.drawCanvas(canvas);
-				for(var i = 0; i < rooms.length; i++) {
-					rooms[i].draw(minRoomSize);
+			// Check if rectangle area has other rectangle in it
+			function isAreaClear(rect) {
+				// Loop through all floor of current rectangle and return false if the value is equal to -1
+				for (var i = rect.y + 1; i < rect.y + rect.height - 1; i++)
+					for (var j = rect.x + 1; j < rect.x + rect.width - 1; j++)
+						if (dungeon[i][j] != -1) return false;
+				// Return true if all value checked is -1
+				return true;
+			}
+			
+			// Commit room and doors to array
+			function commitRoom(rect, doors) {
+				// Commit room to array
+				for (var i = rect.y; i < rect.y + rect.height; i++)
+					for (var j = rect.x; j < rect.x + rect.width; j++)
+						if (i == rect.y || i == rect.y + rect.height - 1 || j == rect.x || j == rect.x + rect.width - 1) 
+							dungeon[i][j] = 6;
+						else 
+							dungeon[i][j] = 5;
+				// Commit doors to array
+				for (var i = 0; i < doors.length; i++)
+					dungeon[doors[i].y][doors[i].x] = doors[i].dir;
+			}
+			
+			// Create doors for each room
+			function createDoors(rect, dir) {
+				var doors = [
+					{x:random.range(rect.x + 1, rect.x + rect.width - 1), y:rect.y, dir:0},
+					{x:rect.x + rect.width - 1, y:random.range(rect.y + 1, rect.y + rect.height - 1), dir:1},
+					{x:random.range(rect.x + 1, rect.x + rect.width - 1), y:rect.y + rect.height - 1, dir:2},
+					{x:rect.x, y:random.range(rect.y + 1, rect.y + rect.height - 1), dir:3},
+				];
+				// Remove door if it is not initial room
+				if (typeof dir !== "undefined") 
+					doors.splice(3 - dir, 1);
+			}
+			
+			// Create new rectangle base on the direction
+			function createRect(dir) {
+				// Define initial rectangle
+				var rect = {x:0, y:0, width:0, height:0};
+				// Random room size
+				rect.width = random.range(minSize, maxSize);
+				rect.height = random.range(minSize, maxSize);
+				// Determine room position
+				if (typeof dir !== "undefined") {
+					if (dir == 0) { // Random top room position
+						rect.y = y - rect.height + 1;
+						rect.x = random.range(x - rect.width + 2, x - 1);
+					} else if (dir == 1) { // Random right room position
+						rect.y = random.range(y - rect.height + 2, y - 1);
+						rect.x = x;
+					} else if (dir == 2) { // Random bottom room position
+						rect.y = y;
+						rect.x = random.range(x - rect.width + 2, x - 1);
+					} else if (dir == 3) { // Random left room position
+						rect.y = random.range(y - rect.height + 2, y - 1);
+						rect.x = x - rect.width + 1;
+					}
+				} else {
+					// Random default room position
+					rect.x = random.range(0, width - rect.width);
+					rect.y = random.range(0, height - rect.height);
 				}
+				// Return created rectangle
+				return rect;
 			}
 		</script>
 	</body>
