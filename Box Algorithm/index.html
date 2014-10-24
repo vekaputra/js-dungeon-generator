@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" href="default.css"/>
+		<script src="render.js"></script>
+		<script src="random.js"></script>
+		<script src="node.js"></script>
+	</head>
+	<body>
+		<div class="info">
+			<button onclick="generate()">Generate!</button>
+			<div>
+				Width :
+				<input type="text" id="width" value="40" />
+			</div>
+			<div>
+				Height :
+				<input type="text" id="height" value="40" />
+			</div>
+			<div>
+				Row Split :
+				<input type="text" id="row" value="3" />
+			</div>
+			<div>
+				Column Split :
+				<input type="text" id="col" value="3" />
+			</div>
+			<div>
+				End chance :
+				<input type="text" id="endchance" value="10" />
+			</div>
+		</div>
+		<canvas class="map" id="canvas">
+		</canvas>
+		<script>
+			// 0 = door, 1 = floor, 2 = wall
+			var blockSize = 15;
+		
+			var canvas = document.getElementById('canvas');
+			var render = new Render(canvas.getContext('2d'), blockSize);
+			var random = new Random();
+			
+			var width = 40;
+			var height = 40;
+			var rowSplit = 3;
+			var colSplit = 3;
+			var endChance = 10;
+			
+			var dungeon = [];
+			var root;
+			
+			// Initialize dungeon array
+			function initialize() {
+				// Create new dungeon array with the size of width * height and all filled equal to -1
+				dungeon = [];
+				root = new Node({x:0, y:0, width:width, height:height});
+				for(var i = 0; i < height; i++)
+				{
+					var temp = [];
+					for(var j = 0; j < width; j++)
+					{
+						temp.push(-1);
+					}
+					dungeon.push(temp);
+				}
+			}
+			
+			// Generate the dungeon
+			function generate() {
+				// Initialize dungeon array and get all parameter from user input
+				initialize();
+				getParameter();
+				// Set canvas size base on width and height multiplied by blockSize
+				canvas.width = width * blockSize;
+				canvas.height = height * blockSize;
+				// Generate dungeon
+				console.log(endChance);
+				for (var i = 0; i < rowSplit + colSplit; i++) {
+					var dir = i % 2;
+					root.split(dir, endChance);
+				}
+				root.commit(dungeon);
+				// Draw the dungeon
+				draw();
+			}
+			
+			// Draw the dungeon
+			function draw() {
+				// Clear canvas, draw canvas background, and draw dungeon based on 'dungeon' array
+				render.clear(canvas);
+				render.drawCanvas(canvas);
+				render.draw(dungeon, width, height);
+			}
+			
+			// Get all parameter from user input
+			function getParameter() {
+				width = parseInt(document.getElementById('width').value);
+				height = parseInt(document.getElementById('height').value);
+				rowSplit = parseInt(document.getElementById('row').value);
+				colSplit = parseInt(document.getElementById('col').value);
+				endChance = parseInt(document.getElementById('endchance').value);
+			}
+		</script>
+	</body>
+</html>
