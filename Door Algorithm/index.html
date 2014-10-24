@@ -22,7 +22,7 @@
 			</div>
 			<div>
 				Min Size :
-				<input type="text" id="minsize" value="4" />
+				<input type="text" id="minsize" value="6" />
 			</div>
 			<div>
 				Max Room Loop :
@@ -30,7 +30,7 @@
 			</div>
 			<div>
 				Generate Loop :
-				<input type="text" id="loop" value="10" />
+				<input type="text" id="loop" value="5" />
 			</div>
 		</div>
 		<canvas class="map" id="canvas">
@@ -47,9 +47,9 @@
 			var width = 40;
 			var height = 40;
 			var maxSize = 10;
-			var minSize = 4;
+			var minSize = 6;
 			var maxLoop = 5;
-			var loop = 0;
+			var loop = 5;
 			
 			var dungeon = [];
 			
@@ -79,14 +79,20 @@
 				// Create the initial room
 				createInitialRoom();
 				// Create the other room by spreading from doors in room (maximum loop from user input)
-				//for (var i = 0; i < loop; i++)
+				for (var i = 0; i < loop; i++) {
 					var doors = [];
 					for (var j = 0; j < height; j++)
 						for (var k = 0; k < width; k++)
-							if (dungeon[j][k] >= 0 && dungeon[j][k] <= 3)
+							if (isUnusedDoor(dungeon[j][k]))
 								doors.push({x:k, y:j, dir:dungeon[j][k]});
 					for (var j = 0; j < doors.length; j++)
 						createRoom(doors[j].x, doors[j].y, doors[j].dir);
+				}
+				// Change all unused door to wall
+				for (var i = 0; i < height; i++) 
+					for (var j = 0; j < width; j++) 
+						if (isUnusedDoor(dungeon[i][j]))
+							dungeon[i][j] = 6;
 				// Draw the dungeon
 				draw();
 			}
@@ -95,28 +101,20 @@
 			function createRoom(x, y, dir) {
 				var rect, doors;
 				var rLoop = 0;
-				// error disini!!!!!!!!!!!!!!!!!!! indeks suka < 0 & > width / height
-				if (x - minSize >= 0 && x + minSize < width - 1 && y - minSize >= 0 && y + minSize < height - 1)
-				{
-					// Create / recreate rectangle until the rectangle isn't collided with any other rectangle (maximum 5 loops)
-					do {
-						console.log('cRoom ' + x + ' ' + y + ' ' + dir);
-						rect = createRect(x, y, dir);
-						rLoop++;
-					} while(rLoop < maxLoop && !isAreaClear(rect));
-					// If area is clear, create doors and set value at initial door as 4 (Normal Door)
-					// Else set value at initial door as 6 (Wall)
-					if (isAreaClear(rect)) {
-						// Create doors for current room
-						doors = createDoors(rect, dir);
-						// Set the door from which the room created as 4 (Normal Room)
-						dungeon[y][x] = 4;
-						// Commit room to array
-						commitRoom(rect, doors);
-					} else {
-						// Set the door from which the room created as 6 (Wall)
-						dungeon[y][x] = 6;
-					}
+				// Create / recreate rectangle until the rectangle isn't collided with any other rectangle (maximum 5 loops)
+				do {
+					rect = createRect(x, y, dir);
+					rLoop++;
+				} while(rLoop < maxLoop && !isAreaClear(rect));
+				// If area is clear, create doors and set value at initial door as 4 (Normal Door)
+				// Else set value at initial door as 6 (Wall)
+				if (isAreaClear(rect)) {
+					// Create doors for current room
+					doors = createDoors(rect, dir);
+					// Set the door from which the room created as 4 (Normal Room)
+					dungeon[y][x] = 4;
+					// Commit room to array
+					commitRoom(rect, doors);
 				} else {
 					// Set the door from which the room created as 6 (Wall)
 					dungeon[y][x] = 6;
@@ -151,16 +149,31 @@
 				loop = parseInt(document.getElementById('loop').value);
 			}
 			
+			// Check if block is door
+			function isUnusedDoor(value) {
+				if (value >= 0 && value <= 3) return true;
+				return false;
+			}
+			
 			// Check if rectangle area has other rectangle in it
 			function isAreaClear(rect) {
-				// Loop through all floor of current rectangle and return false if the value is equal to -1
-				for (var i = rect.y + 1; i < rect.y + rect.height - 1; i++)
-					for (var j = rect.x + 1; j < rect.x + rect.width - 1; j++)
-					{
-						if (dungeon[i][j] != -1) 
-							return false;
-					}
-				// Return true if all value checked is -1
+				if (isValidRectangle(rect))
+				{
+					// Loop through all floor of current rectangle and return false if the value is equal to -1
+					for (var i = rect.y + 1; i < rect.y + rect.height - 1; i++)
+						for (var j = rect.x + 1; j < rect.x + rect.width - 1; j++)
+							if (dungeon[i][j] != -1) 
+								return false;
+					// Return true if all value checked is -1
+					return true;
+				}
+				return false;
+			}
+			
+			// Check if rectangle is out of bounds
+			function isValidRectangle(rect) {
+				if (rect.x < 0 || rect.x + rect.width > width - 1 || rect.y < 0 || rect.y + rect.height > height - 1)
+					return false;
 				return true;
 			}
 			
@@ -205,24 +218,19 @@
 				// Determine room position
 				if (typeof dir === 'undefined') {
 					// Random default room position
-					console.log("Default Room");
 					rect.x = random.range(0, width - rect.width);
 					rect.y = random.range(0, height - rect.height);
 				} else {
 					if (dir == 0) { // Random top room position
-						console.log("Top Room");
 						rect.y = y - rect.height + 1;
 						rect.x = random.range(x - rect.width + 2, x - 1);
 					} else if (dir == 1) { // Random right room position
-						console.log("Right Room");
 						rect.y = random.range(y - rect.height + 2, y - 1);
 						rect.x = x;
 					} else if (dir == 2) { // Random bottom room position
-						console.log("Bottom Room");
 						rect.y = y;
 						rect.x = random.range(x - rect.width + 2, x - 1);
 					} else if (dir == 3) { // Random left room position
-						console.log("Left Room");
 						rect.y = random.range(y - rect.height + 2, y - 1);
 						rect.x = x - rect.width + 1;
 					}
