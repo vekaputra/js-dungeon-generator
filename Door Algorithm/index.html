@@ -125,6 +125,8 @@
 			function createInitialRoom() {
 				// Get room position and size
 				var rect = createRect();
+				rect.x = random.range(width / 2 - maxSize / 2, width / 2 + maxSize / 2);
+				rect.y = random.range(height / 2 - maxSize / 2, height / 2 + maxSize / 2);
 				// Random door position
 				var doors = createDoors(rect);
 				// Commit room to array

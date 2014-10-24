@@ -64,25 +64,25 @@ function Leaf(rect, color, minSize) {
 		var mH = Math.abs(h);
 		
 		if (w == 0) {
-			this.halls.push(new Room(new Rectangle(minX, minY, 1, mH)));
+			this.halls.push(new Room(new Rectangle(minX, minY, 2, mH)));
 		} else if (h == 0) {
-			this.halls.push(new Room(new Rectangle(minX, minY, mW, 1)));
+			this.halls.push(new Room(new Rectangle(minX, minY, mW, 2)));
 		} else {
 			if ((w > 0 && h > 0) || (w < 0 && h < 0)) {
 				if (random.random(2) > 1) {
-					this.halls.push(new Room(new Rectangle(minX, minY, mW, 1)));
-					this.halls.push(new Room(new Rectangle(maxX, minY, 1, mH)));
+					this.halls.push(new Room(new Rectangle(minX, minY, mW, 2)));
+					this.halls.push(new Room(new Rectangle(maxX, minY, 2, mH)));
 				} else {
-					this.halls.push(new Room(new Rectangle(minX, minY, 1, mH)));
-					this.halls.push(new Room(new Rectangle(minX, maxY, mW, 1)));
+					this.halls.push(new Room(new Rectangle(minX, minY, 2, mH)));
+					this.halls.push(new Room(new Rectangle(minX, maxY, mW, 2)));
 				}
 			} else {
 				if (random.random(2) > 1) {
-					this.halls.push(new Room(new Rectangle(minX, maxY, mW, 1)));
-					this.halls.push(new Room(new Rectangle(maxX, minY, 1, mH)));
+					this.halls.push(new Room(new Rectangle(minX, maxY, mW, 2)));
+					this.halls.push(new Room(new Rectangle(maxX, minY, 2, mH)));
 				} else {
-					this.halls.push(new Room(new Rectangle(minX, minY, 1, mH)));
-					this.halls.push(new Room(new Rectangle(minX, minY, mW, 1)));
+					this.halls.push(new Room(new Rectangle(minX, minY, 2, mH)));
+					this.halls.push(new Room(new Rectangle(minX, minY, mW, 2)));
 				}
 			}
 		}
@@ -103,7 +103,7 @@ function Leaf(rect, color, minSize) {
 		} else {
 			var roomSize, roomPos;
 			// randomize width and height then store it as roomSize
-			roomSize = new Point(random.randomRange(4, this.rect.width - 2), random.randomRange(4, this.rect.height - 2));
+			roomSize = new Point(random.randomRange(6, this.rect.width - 2), random.randomRange(6, this.rect.height - 2));
 			// randomize x and y pos then store it as roomPos
 			roomPos = new Point(random.randomRange(1, this.rect.width - roomSize.x - 1), random.randomRange(1, this.rect.height - roomSize.y - 1));
 			// store current room info into this.room
