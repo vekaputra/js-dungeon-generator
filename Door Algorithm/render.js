@@ -6,7 +6,7 @@ function Render(context, size) {
 	};
 	this.drawCanvas = function(canvas) {
 		this.ctx.fillStyle = "#333333";
-		this.ctx.strokeStyle = "#000000";
+		this.ctx.strokeStyle = "#ffffff";
 		this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 		this.ctx.strokeRect(0, 0, canvas.width, canvas.height);
 	};
