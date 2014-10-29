@@ -2,106 +2,108 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="default.css"/>
-		<script src="leaf.js"></script>
 		<script src="render.js"></script>
-		<script src="room.js"></script>
 		<script src="random.js"></script>
-		<script src="rectangle.js"></script>
-		<script src="point.js"></script>
+		<script src="node.js"></script>
 	</head>
 	<body>
 		<div class="info">
-			<button onclick="split()">Split!</button>
-			<button onclick="refresh()">Refresh!</button>
-			<div id="iter">Iteration : 0</div>
-			<div id="roomCount">Room Count : 0</div>
-			<div id="hallCount">Hall Count : 0</div>
+			<button onclick="generate()">Generate!</button>
+			<div>
+				Width :
+				<input type="text" id="width" value="60" />
+			</div>
+			<div>
+				Height :
+				<input type="text" id="height" value="60" />
+			</div>
+			<div>
+				Min Leaf Size :
+				<input type="text" id="minleaf" value="8" />
+			</div>
+			<div>
+				Max Room Offset :
+				<input type="text" id="maxroom" value="4" />
+			</div>
+			<div>
+				Min Room Size :
+				<input type="text" id="minroom" value="6" />
+			</div>
+			<div>
+				Iteration :
+				<input type="text" id="loop" value="5" />
+			</div>
 		</div>
-		<canvas class="map" id="canvas" width="600" height="600">
+		<canvas class="map" id="canvas">
 		</canvas>
 		<script>
-			// Main Code
+			// 0 = Floor, 1 = Wall, 2 = Node Floor, 3 = Node Wall 
+			var blockSize = 10;
+		
 			var canvas = document.getElementById('canvas');
-			var render = new Render(canvas.getContext('2d'));
+			var render = new Render(canvas.getContext('2d'), blockSize);
 			var random = new Random();
-			var rootLeaf;
-			var leafs = new Array();
-			var iter = 0;
-			var maxSize = 20;
-			var minSize = 10;
-
-			// Info Component
-			var iterText = document.getElementById('iter');
-			var roomCountText = document.getElementById('roomCount');
-			var hallCountText = document.getElementById('hallCount');
-
-			refresh();
-
-			// Function
-			// Refresh the BSP
-			function refresh() {
-				rootLeaf = new Leaf(new Rectangle(0, 0, 60, 60), render.getRandomColor(), minSize);
-				leafs = new Array();
-				halls = new Array();
-				rooms = new Array();
-				leafs.push(rootLeaf);
-				iter = 0;
-				drawAll();
-			}
-			// Split current last child
-			function split() {
-				refresh();
-				var leafsLength = 0;
-				var didSplit = true;
-				while(didSplit) {
-					didSplit = false;
-					leafsLength = leafs.length;
-					for (var j = 0; j < leafsLength; j++) {
-						if (leafs[j].leftNode == null && leafs[j].rightNode == null) {
-							if (leafs[j].rect.width > maxSize || leafs[j].rect.height > maxSize) {
-								if (leafs[j].split()) {
-									leafs.push(leafs[j].leftNode);
-									leafs.push(leafs[j].rightNode);
-									didSplit = true;
-								}
-							}
-						}
+			
+			var width = 40;
+			var height = 40;
+			var minLeafSize = 8;
+			var maxRoomOffset = 4;
+			var minRoomSize = 4;
+			var loop = 5;
+			
+			var dungeon = [];
+			var rootNode;
+			
+			// Initialize dungeon array
+			function initialize() {
+				// Create new dungeon array with the size of width * height and all filled equal to -1
+				dungeon = [];
+				for(var i = 0; i < height; i++)
+				{
+					var temp = [];
+					for(var j = 0; j < width; j++)
+					{
+						temp.push(-1);
 					}
-					iter++;
+					dungeon.push(temp);
 				}
-				rootLeaf.createRoom();
-				drawAll();
 			}
-			// Draw all child
-			function drawAll() {
-				var roomCount = 0;
-				var hallCount = 0;
+			
+			// Generate the dungeon
+			function generate() {
+				// Initialize dungeon array and get all parameter from user input
+				initialize();
+				getParameter();
+				// Set canvas size base on width and height multiplied by blockSize
+				canvas.width = width * blockSize;
+				canvas.height = height * blockSize;
+				// Split the root
+				rootNode = new Node({x:0, y:0, width:width, height:height});
+				for (var i = 0; i < loop; i++) {
+					rootNode.split(minLeafSize);
+				}
+				rootNode.createRoom(minRoomSize, maxRoomOffset);
+				rootNode.commit(dungeon);
+				// Draw the dungeon
+				draw();
+			}
+			
+			// Draw the dungeon
+			function draw() {
+				// Clear canvas, draw canvas background, and draw dungeon based on 'dungeon' array
 				render.clear(canvas);
-				// draw leaf & room
-				for (var i = 0; i < leafs.length; i++) {
-					if (leafs[i].leftNode == null && leafs[i].rightNode == null) {
-						// draw leaf
-						leafs[i].draw();
-						if (leafs[i].room != null) {
-							// draw room
-							leafs[i].room.draw();
-							roomCount++;
-						}
-					}
-				}
-				// draw hall
-				for (var i = 0; i < leafs.length; i++) {
-					var hallLength = leafs[i].halls.length;
-					if (hallLength > 0) {
-						for (var j = 0; j < hallLength; j++) {
-							leafs[i].halls[j].draw();
-							hallCount++;
-						}
-					}
-				}
-				iterText.innerHTML = "Iteration : " + iter;
-				roomCountText.innerHTML = "Room Count : " + roomCount;
-				hallCountText.innerHTML = "Hall Count : " + hallCount;
+				render.drawCanvas(canvas);
+				render.draw(dungeon, width, height);
+			}
+			
+			// Get all parameter from user input
+			function getParameter() {
+				width = parseInt(document.getElementById('width').value);
+				height = parseInt(document.getElementById('height').value);
+				minLeafSize = parseInt(document.getElementById('minleaf').value);
+				maxRoomOffset = parseInt(document.getElementById('maxroom').value);
+				minRoomSize = parseInt(document.getElementById('minroom').value);
+				loop = parseInt(document.getElementById('loop').value);
 			}
 		</script>
 	</body>

@@ -1,6 +1,6 @@
 function Random() {
     // random value from min to max
-    this.range = function(min, max, flag) {
+    this.randomRange = function(min, max, flag) {
 		if (typeof flag === 'undefined')
 			flag = true;
         if (flag) {

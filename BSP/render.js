@@ -1,27 +1,43 @@
-function Render(context) {
+function Render(context, size) {
 	this.ctx = context;
-	// clear the canvas
+	this.blockSize = size;
 	this.clear = function(canvas) {
-		// clear canvas from 0,0 with the size of canvas
 		this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 	};
-	// draw leaf 10x10 pixel each
-	this.drawLeaf = function(rect, color) {
-		this.ctx.fillStyle = color;
-		this.ctx.strokeStyle = "#000000";
-		for (var i = 0; i < rect.height; i++) {
-			for (var j = 0; j < rect.width; j++) {
-				this.ctx.fillRect((rect.x + j) * 10, (rect.y + i) * 10, 10, 10);
-				this.ctx.strokeRect((rect.x + j) * 10, (rect.y + i) * 10, 10, 10);
+	this.drawCanvas = function(canvas) {
+		this.ctx.fillStyle = "#333333";
+		this.ctx.strokeStyle = "#ffffff";
+		this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+		this.ctx.strokeRect(0, 0, canvas.width, canvas.height);
+	};
+	this.draw = function(arr, width, height) {
+		for (var i = 0; i < height; i++)
+		{
+			for (var j = 0; j < width; j++)
+			{
+				if (arr[i][j] == 0)
+				{
+					this.ctx.fillStyle = "#ffffff";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
+				else if (arr[i][j] == 1)
+				{
+					this.ctx.fillStyle = "#999999";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
+				else if (arr[i][j] == 2)
+				{
+					this.ctx.fillStyle = "#aa0000";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
+				else if (arr[i][j] == 3)
+				{
+					this.ctx.fillStyle = "#00aa00";
+					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+				}
 			}
 		}
 	};
-	// draw room and hall
-	this.drawRoom = function(rect) {
-		this.ctx.fillStyle = "#ffffff";
-		this.ctx.fillRect(rect.x * 10, rect.y * 10, rect.width * 10, rect.height * 10);
-	};
-	// randomized color to format 'rgb(r,g,b)'
 	this.getRandomColor = function() {
 		var r = random.random(256, true);
 		var g = random.random(256, true);
