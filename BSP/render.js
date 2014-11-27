@@ -18,7 +18,9 @@ function Render(context, size) {
 				if (arr[i][j] == 0)
 				{
 					this.ctx.fillStyle = "#ffffff";
+					this.ctx.strokeStyle = "#999999";
 					this.ctx.fillRect(j * blockSize, i * blockSize, blockSize, blockSize);
+					this.ctx.strokeRect(j * blockSize, i * blockSize, blockSize, blockSize);
 				}
 				else if (arr[i][j] == 1)
 				{
